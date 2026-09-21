@@ -1,182 +1,52 @@
 @import "tailwindcss";
 
-@theme {
-  --color-cream: #fff6ec;
-  --color-cream-deep: #ffe9d3;
-  --color-ink: #2b1226;
-  --color-plum: #3d1636;
-  --color-plum-deep: #2b1226;
-  --color-blush: #ff7bac;
-  --color-punch: #ff4d6d;
-  --color-tangerine: #ff8c42;
-  --color-butter: #ffd23f;
-  --color-mint: #9bf0c0;
-  --color-lilac: #c9b6ff;
-
-  --font-display: var(--font-display);
-  --font-serif-accent: var(--font-serif-accent);
-  --font-hand: var(--font-hand);
-  --font-body: var(--font-body);
-
-  --animate-marquee: marquee 28s linear infinite;
-  --animate-marquee-fast: marquee 16s linear infinite;
-  --animate-marquee-rev: marquee-rev 46s linear infinite;
-  --animate-spin-slower: spin 16s linear infinite;
-  --animate-float: float 6s ease-in-out infinite;
-  --animate-float-late: float 7.5s ease-in-out -2s infinite;
-  --animate-wiggle: wiggle 2.4s ease-in-out infinite;
-
-  @keyframes marquee {
-    from {
-      transform: translateX(0);
-    }
-    to {
-      transform: translateX(-50%);
-    }
-  }
-  @keyframes marquee-rev {
-    from {
-      transform: translateX(-50%);
-    }
-    to {
-      transform: translateX(0);
-    }
-  }
-  @keyframes float {
-    0%,
-    100% {
-      transform: translateY(0) rotate(var(--r, 0deg));
-    }
-    50% {
-      transform: translateY(-14px) rotate(var(--r, 0deg));
-    }
-  }
-  @keyframes wiggle {
-    0%,
-    100% {
-      transform: rotate(-2deg);
-    }
-    50% {
-      transform: rotate(2deg);
-    }
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   }
 }
 
-html {
-  scroll-behavior: smooth;
+/* Custom glow and glassmorphism utilities */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(254, 215, 170, 0.4);
 }
 
-body {
-  overflow-x: clip;
+.glass-dark {
+  background: rgba(24, 16, 29, 0.88);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(244, 114, 182, 0.2);
 }
 
-::selection {
-  background: #ff4d6d;
-  color: #fff6ec;
+.sunset-gradient {
+  background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 50%, #FFA84C 100%);
 }
 
-::-webkit-scrollbar {
-  width: 12px;
-}
-::-webkit-scrollbar-track {
-  background: #fff6ec;
-}
-::-webkit-scrollbar-thumb {
-  background: #2b1226;
-  border-radius: 99px;
-  border: 3px solid #fff6ec;
+.luxury-gradient {
+  background: linear-gradient(135deg, #1E121E 0%, #351C33 50%, #4B243B 100%);
 }
 
-/* neo-sticker hard shadow */
-.sticker {
-  border: 2px solid #2b1226;
-  box-shadow: 5px 5px 0 #2b1226;
-  transition:
-    transform 0.18s ease,
-    box-shadow 0.18s ease;
-}
-.sticker:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 8px 8px 0 #2b1226;
-}
-.sticker:active {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0 #2b1226;
+.gold-gradient {
+  background: linear-gradient(135deg, #FDE68A 0%, #F59E0B 50%, #D97706 100%);
 }
 
-.sticker-light {
-  border: 2px solid #fff6ec;
-  box-shadow: 5px 5px 0 rgba(255, 246, 236, 0.9);
-  transition:
-    transform 0.18s ease,
-    box-shadow 0.18s ease;
-}
-.sticker-light:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 8px 8px 0 rgba(255, 246, 236, 0.9);
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(2deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
 }
 
-/* outlined display text */
-.text-outline {
-  -webkit-text-stroke: 2px rgba(255, 246, 236, 0.4);
-  color: transparent;
+.animate-float {
+  animation: float 4s ease-in-out infinite;
 }
 
-/* film grain overlay */
-.grain::after {
-  content: "";
-  position: fixed;
-  inset: -100%;
-  z-index: 70;
-  pointer-events: none;
-  opacity: 0.05;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  animation: grain-shift 8s steps(10) infinite;
-}
-@keyframes grain-shift {
-  0%,
-  100% {
-    transform: translate(0, 0);
-  }
-  20% {
-    transform: translate(-4%, 3%);
-  }
-  40% {
-    transform: translate(3%, -5%);
-  }
-  60% {
-    transform: translate(-5%, -2%);
-  }
-  80% {
-    transform: translate(4%, 4%);
-  }
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.03); }
 }
 
-/* dashed hair-strand that draws itself */
-.strand {
-  stroke-dasharray: 8 10;
-  animation: strand-drift 22s linear infinite;
-}
-@keyframes strand-drift {
-  to {
-    stroke-dashoffset: -360;
-  }
-}
-
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+.animate-pulse-slow {
+  animation: pulse-slow 3s ease-in-out infinite;
 }

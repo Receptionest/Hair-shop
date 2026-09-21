@@ -1,79 +1,80 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { db } from "@/db";
-import { orders, type OrderItem } from "@/db/schema";
+import { orders } from "@/db/schema";
+import { desc, eq } from "drizzle-orm";
 
-export const dynamic = "force-dynamic";
-
-export async function POST(request: NextRequest) {
+export async function GET(request: Request) {
   try {
-    const body = (await request.json()) as {
-      name?: string;
-      phone?: string;
-      fulfillment?: string;
-      items?: OrderItem[];
-    };
+    const { searchParams } = new URL(request.url);
+    const orderNumber = searchParams.get("orderNumber");
 
-    const name = (body.name ?? "").trim();
-    const phone = (body.phone ?? "").trim().replace(/[^\d+]/g, "");
-    const items = Array.isArray(body.items) ? body.items : [];
-    const fulfillment = body.fulfillment === "delivery" ? "delivery" : "pickup";
-
-    if (name.length < 2) {
-      return NextResponse.json(
-        { error: "We need your name to put on the bag, gorgeous." },
-        { status: 400 },
-      );
-    }
-    if (phone.length < 9) {
-      return NextResponse.json(
-        { error: "That number is looking shy — give us a real phone number." },
-        { status: 400 },
-      );
-    }
-    if (items.length === 0) {
-      return NextResponse.json(
-        { error: "Your crown bag is empty." },
-        { status: 400 },
-      );
+    if (orderNumber) {
+      const order = await db.select().from(orders).where(eq(orders.orderNumber, orderNumber));
+      if (order.length === 0) {
+        return NextResponse.json({ success: false, error: "Order not found" }, { status: 404 });
+      }
+      return NextResponse.json({ success: true, order: order[0] });
     }
 
-    const cleanItems = items
-      .map((item) => ({
-        name: String(item.name ?? "").slice(0, 120),
-        option: String(item.option ?? "").slice(0, 60),
-        qty: Math.max(1, Math.min(20, Number(item.qty) || 1)),
-        price: Math.max(0, Number(item.price) || 0),
-      }))
-      .filter((item) => item.name && item.price > 0);
-
-    if (cleanItems.length === 0) {
-      return NextResponse.json(
-        { error: "Your crown bag is empty." },
-        { status: 400 },
-      );
-    }
-
-    const total = cleanItems.reduce((sum, item) => sum + item.price * item.qty, 0);
-    const code = `HRY-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
-
-    const [inserted] = await db
-      .insert(orders)
-      .values({
-        code,
-        customerName: name.slice(0, 80),
-        phone: phone.slice(0, 20),
-        fulfillment,
-        items: cleanItems,
-        total,
-      })
-      .returning({ code: orders.code });
-
-    return NextResponse.json({ code: inserted.code, total });
+    const allOrders = await db.select().from(orders).orderBy(desc(orders.createdAt));
+    return NextResponse.json({ success: true, orders: allOrders });
   } catch (error) {
-    console.error("Order failed", error);
-    return NextResponse.json(
-      { error: "Eish, something glitched on our side. Try again?" },
-      { status: 500 },
-    );
+    console.error("Error fetching orders:", error);
+    return NextResponse.json({ success: false, error: "Failed to fetch orders" }, { status: 500 });
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+
+    // Generate random order number like NEL-4921
+    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+    const orderNumber = `NEL-${randomSuffix}`;
+
+    const newOrder = await db.insert(orders).values({
+      orderNumber,
+      customerName: body.customerName,
+      customerPhone: body.customerPhone,
+      customerEmail: body.customerEmail,
+      suburb: body.suburb || "Nelspruit",
+      streetAddress: body.streetAddress || "Nelspruit Central",
+      city: body.city || "Nelspruit",
+      deliveryMethod: body.deliveryMethod || "same_day_nelspruit",
+      paymentMethod: body.paymentMethod || "instant_eft",
+      items: body.items,
+      subtotal: Number(body.subtotal),
+      discount: Number(body.discount || 0),
+      shippingFee: Number(body.shippingFee || 0),
+      total: Number(body.total),
+      status: "Processing",
+      notes: body.notes || "",
+    }).returning();
+
+    return NextResponse.json({ success: true, order: newOrder[0] }, { status: 201 });
+  } catch (error) {
+    console.error("Error creating order:", error);
+    return NextResponse.json({ success: false, error: "Failed to create order" }, { status: 500 });
+  }
+}
+
+export async function PATCH(request: Request) {
+  try {
+    const body = await request.json();
+    const { id, status } = body;
+
+    if (!id || !status) {
+      return NextResponse.json({ success: false, error: "Missing id or status" }, { status: 400 });
+    }
+
+    const updated = await db.update(orders)
+      .set({ status })
+      .where(eq(orders.id, id))
+      .returning();
+
+    return NextResponse.json({ success: true, order: updated[0] });
+  } catch (error) {
+    console.error("Error updating order:", error);
+    return NextResponse.json({ success: false, error: "Failed to update order" }, { status: 500 });
   }
 }

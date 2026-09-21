@@ -1,53 +1,23 @@
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import {
-  Bricolage_Grotesque,
-  Instrument_Serif,
-  Caveat,
-  Space_Grotesk,
-} from "next/font/google";
 import "./globals.css";
 
-const display = Bricolage_Grotesque({
-  variable: "--font-display",
-  subsets: ["latin"],
-});
-
-const serifAccent = Instrument_Serif({
-  variable: "--font-serif-accent",
-  subsets: ["latin"],
-  weight: "400",
-  style: ["normal", "italic"],
-});
-
-const hand = Caveat({
-  variable: "--font-hand",
-  subsets: ["latin"],
-});
-
-const body = Space_Grotesk({
-  variable: "--font-body",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "HAIRAPY Nelspruit — Human Hair Blends, Bundles & Wigs",
-  description:
-    "Nelspruit's most-loved hair shop. 100% human hair blends, glueless wigs, HD lace and legendary service. Same-day pickup in the CBD, lay-bye welcomed, crowns handed out daily.",
-};
-
-export const viewport: Viewport = {
-  themeColor: "#2B1226",
-  width: "device-width",
-  initialScale: 1,
+  metadataBase: new URL("https://manetropics-nelspruit.co.za"),
+  title: "MANE TROPICS NELSPRUIT | Luxury Human Hair Blends | Heat-Defying Wigs & Bundles",
+  description: "Nelspruit's most vibrant hair sanctuary! Premium Human Hair Blends engineered to defy the Lowveld heat and humidity. Same-day delivery across Mbombela or pickup at Sonpark Centre.",
+  keywords: "human hair blend nelspruit, wigs nelspruit, mbombela hair shop, hair bundles nelspruit, glueless wigs mpumalanga, white river hair extensions",
+  openGraph: {
+    title: "MANE TROPICS NELSPRUIT | Luxury Human Hair Blends",
+    description: "Heat-proof, humidity-proof human hair blend wigs and bundles in Nelspruit. Shop online or visit our Sonpark fitting lounge.",
+    images: ["/images/hero-hair-baddie.jpg"],
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${display.variable} ${serifAccent.variable} ${hand.variable} ${body.variable} bg-cream font-body text-ink antialiased`}
-      >
+    <html lang="en">
+      <body className="bg-[#FAF7F5] text-[#241A24] antialiased selection:bg-[#F472B6] selection:text-white">
         {children}
       </body>
     </html>
